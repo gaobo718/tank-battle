@@ -388,7 +388,6 @@ const SPAWN_POINTS = [
 
 function spawnEnemy() {
   if (game.enemiesSpawned >= game.enemiesPerWave) return false;
-  game.enemiesPerWave = 3 + game.wave;
   const candidates = SPAWN_POINTS.filter(sp => {
     const ex = sp.x * 48, ey = sp.y * 48;
     for (const t of game.tanks) {
@@ -468,9 +467,11 @@ function updateUI() {
 
 // ---- 渲染 ----
 function drawMap() {
-  if (!currentMap || currentMap.length === 0) return;
+  if (!currentMap || currentMap.length === 0 || !currentMap[0]) return;
   for (let r = 0; r < 13; r++) {
+    if (!currentMap[r]) continue;
     for (let c = 0; c < 13; c++) {
+      if (currentMap[r][c] === undefined) continue;
       const tile = currentMap[r][c];
       const x = c * 48, y = r * 48;
       if (tile === 1) {
@@ -623,8 +624,12 @@ function draw() {
 }
 
 function loop() {
-  update();
-  draw();
+  try {
+    update();
+    draw();
+  } catch(e) {
+    console.error('Game error:', e);
+  }
   requestAnimationFrame(loop);
 }
 
